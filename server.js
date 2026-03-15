@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const multer = require('multer');
+const fs = require('fs');
 
 dotenv.config();
 
@@ -13,6 +15,26 @@ const path = require('path');
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve static files from the root directory
+
+// --- Multer Configuration for File Uploads ---
+
+// Create 'uploads' directory if it doesn't exist
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, `${req.body.rollNumber}-${uniqueSuffix}${path.extname(file.originalname)}`);
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -51,6 +73,7 @@ const registrationSchema = new mongoose.Schema({
     events: { type: String, required: true },
     transactionId: { type: String, required: true, unique: true },
     paymentMode: { type: String, required: true },
+    paymentScreenshot: { type: String, required: true },
     paymentStatus: { type: String, default: 'Pending' },
     registrationDate: { type: Date, default: Date.now }
 });
@@ -58,9 +81,14 @@ const registrationSchema = new mongoose.Schema({
 const Registration = mongoose.model('Registration', registrationSchema);
 
 // API Routes
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', upload.single('paymentScreenshot'), async (req, res) => {
     try {
+        if (!req.file) {
+            return res.status(400).json({ status: 'error', message: 'Payment screenshot is required.' });
+        }
+
         const registrationData = req.body;
+        registrationData.paymentScreenshot = req.file.path;
 
         // Enhanced validation
         const requiredFields = ['name', 'email', 'phone', 'rollNumber', 'college', 'department', 'year', 'events', 'transactionId', 'paymentMode'];
