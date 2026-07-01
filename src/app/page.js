@@ -567,13 +567,20 @@ export default function Home() {
           'x-admin-password': 'sollamatan'
         },
         body: JSON.stringify({
-          eventDate: new Date(adminSettingsInput.eventDate).toISOString(),
+          eventDate: adminSettingsInput.eventDate,
           registrationClosed: adminSettingsInput.registrationClosed
         })
       });
       const data = await res.json();
       if (res.ok && data.status === 'success') {
         setSettings(data.data);
+        const dateObj = new Date(data.data.eventDate);
+        const tzOffset = dateObj.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(dateObj.getTime() - tzOffset)).toISOString().slice(0, 16);
+        setAdminSettingsInput({
+          eventDate: localISOTime,
+          registrationClosed: data.data.registrationClosed
+        });
         showNotification('success', 'Configurations Saved', 'Global symposium date/time and closure settings updated.');
       } else {
         showNotification('error', 'Update Failed', data.message || 'Could not save configurations.');
