@@ -51,10 +51,6 @@ const RegistrationSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please select the payment mode.'],
   },
-  paymentScreenshot: {
-    type: String,
-    required: [true, 'Please upload your payment screenshot.'],
-  },
   status: {
     type: String,
     enum: ['Payed'],

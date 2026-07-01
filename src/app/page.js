@@ -134,10 +134,8 @@ export default function Home() {
     technicalEvent: '',
     nonTechnicalEvent: '',
     transactionId: '',
-    paymentMode: '',
-    paymentScreenshot: '' // Base64 representation of image
+    paymentMode: ''
   });
-  const [screenshotPreview, setScreenshotPreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // Secret admin state variables
@@ -386,30 +384,6 @@ export default function Home() {
     }));
   };
 
-  // Form file screenshot converter (image to Base64)
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // 2MB validation check
-      if (file.size > 2 * 1024 * 1024) {
-        showNotification('error', 'File Too Large', 'Please upload a transaction screenshot image under 2MB.');
-        e.target.value = ''; // clear input
-        setScreenshotPreview('');
-        setFormData(prev => ({ ...prev, paymentScreenshot: '' }));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          paymentScreenshot: reader.result // Base64 data url
-        }));
-        setScreenshotPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   // Form submit handler (Public User Registration)
   const handleFormSubmit = async (e) => {
@@ -426,8 +400,7 @@ export default function Home() {
       technicalEvent,
       nonTechnicalEvent,
       transactionId,
-      paymentMode,
-      paymentScreenshot
+      paymentMode
     } = formData;
 
     if (
@@ -441,10 +414,9 @@ export default function Home() {
       !technicalEvent ||
       !nonTechnicalEvent ||
       !transactionId ||
-      !paymentMode ||
-      !paymentScreenshot
+      !paymentMode
     ) {
-      showNotification('error', 'Incomplete Form', 'Please fill in all required fields and upload your transaction payment screenshot.');
+      showNotification('error', 'Incomplete Form', 'Please fill in all required fields.');
       return;
     }
 
@@ -483,13 +455,8 @@ export default function Home() {
           technicalEvent: '',
           nonTechnicalEvent: '',
           transactionId: '',
-          paymentMode: '',
-          paymentScreenshot: ''
+          paymentMode: ''
         });
-        setScreenshotPreview('');
-        // Reset file input in DOM if any
-        const fileInput = document.getElementById('paymentScreenshotInput');
-        if (fileInput) fileInput.value = '';
       } else {
         showNotification('error', 'Registration Failed', result.message || 'An error occurred during submission.');
       }
@@ -1843,11 +1810,10 @@ export default function Home() {
                   <div className="payment-instructions">
                     <p>📌 After payment:</p>
                     <ul>
-                      <li>Enter your <strong>Transaction ID</strong> below.</li>
+                      <li>Enter your <strong>reference Transaction ID</strong> below.</li>
                       <li>Select the payment mode you used.</li>
-                      <li>Upload your transaction <strong>Payment Screenshot</strong>.</li>
-                      <li>Join the WhatsApp group and send the payment screenshot for verification.</li>
                       <li>Submit the form to confirm your registration.</li>
+                      <li>Keep the reference ID ready for any follow-up.</li>
                     </ul>
                   </div>
                   <p className="payment-warning">⚠️ Payment once made is non-refundable. Ensure the Transaction ID is correct.</p>
@@ -1861,7 +1827,7 @@ export default function Home() {
                     type="text" 
                     name="transactionId" 
                     required 
-                    placeholder="Enter UPI Transaction ID"
+                    placeholder="Enter transaction ID"
                     value={formData.transactionId}
                     onChange={handleInputChange}
                   />
@@ -1884,58 +1850,7 @@ export default function Home() {
               </div>
 
               {/* Payment screenshot file upload */}
-              <div className="form-group">
-                <label>Upload Payment Screenshot *</label>
-                <div className="file-upload-wrapper" style={{
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '2px dashed var(--border)',
-                  borderRadius: '12px',
-                  padding: '2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'var(--transition)'
-                }}>
-                  <input 
-                    type="file" 
-                    id="paymentScreenshotInput"
-                    accept="image/*"
-                    required
-                    onChange={handleFileChange}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      opacity: 0,
-                      cursor: 'pointer'
-                    }}
-                  />
-                  <div className="file-upload-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem' }}>
-                    <span style={{ fontSize: '2.5rem' }}>📷</span>
-                    <span style={{ fontWeight: 600 }}>Click to browse or drag receipt screenshot here</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Formats: PNG, JPG, JPEG • Max file size: 2MB</span>
-                  </div>
-                </div>
-                {screenshotPreview && (
-                  <div className="screenshot-preview-container" style={{
-                    marginTop: '1.2rem',
-                    textAlign: 'center',
-                    background: 'rgba(0,0,0,0.2)',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)'
-                  }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Selected image preview:</p>
-                    <img 
-                      src={screenshotPreview} 
-                      alt="Payment Screenshot Preview" 
-                      style={{ maxHeight: '180px', borderRadius: '4px', border: '1px solid var(--border)' }} 
-                    />
-                  </div>
-                )}
-              </div>
+
 
               {/* WhatsApp & Submit */}
               <div className="form-group" style={{ textAlign: 'center', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
@@ -1957,7 +1872,7 @@ export default function Home() {
                   Join WhatsApp Group
                 </a>
                 <p style={{ fontSize: '0.9rem', color: '#e7e2e2', marginTop: '1rem' }}>
-                  Please send the payment screenshot in this WhatsApp group for manual validation.
+                  Join the WhatsApp group for payment support and registration updates.
                 </p>
               </div>
 
@@ -1965,7 +1880,7 @@ export default function Home() {
                 {submitting ? 'Processing Registration...' : 'Complete Registration'}
               </button>
               <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                Your data is safe and secure with us
+                Enter the transaction reference ID from your payment receipt.
               </p>
             </form>
           </div>

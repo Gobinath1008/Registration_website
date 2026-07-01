@@ -18,8 +18,7 @@ export async function POST(req) {
       technicalEvent,
       nonTechnicalEvent,
       transactionId,
-      paymentMode,
-      paymentScreenshot // Base64 string of the uploaded receipt
+      paymentMode
     } = data;
 
     // Server-side validation
@@ -34,11 +33,10 @@ export async function POST(req) {
       !technicalEvent ||
       !nonTechnicalEvent ||
       !transactionId ||
-      !paymentMode ||
-      !paymentScreenshot
+      !paymentMode
     ) {
       return NextResponse.json(
-        { status: 'error', message: 'All required fields must be filled, including the transaction payment screenshot.' },
+        { status: 'error', message: 'All required fields must be filled.' },
         { status: 400 }
       );
     }
@@ -85,7 +83,6 @@ export async function POST(req) {
       nonTechnicalEvent,
       transactionId: transactionId.trim().toUpperCase(),
       paymentMode,
-      paymentScreenshot, // Base64 data
       status: 'Payed'
     });
 
