@@ -5,6 +5,13 @@ export const metadata = {
   description: "Technical & Non-Technical Symposium by Department of MCA, KIOT Salem. Innovate | Integrate | Inspire on March 12, 2026.",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
